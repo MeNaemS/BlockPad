@@ -1,2 +1,5 @@
+adaptix==3.0.0b9
+dynaconf==3.2.7
+numpy==2.2.2
 pygame==2.6.1
 setuptools==75.8.0
