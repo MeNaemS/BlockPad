@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Dict, List, Tuple
 
 
 @dataclass(slots=True)
@@ -11,11 +10,11 @@ class Dotenv:
 
 @dataclass(slots=True)
 class ColorsOfShapes:
-    green: Dict[str, List[Tuple[int, int, int]]]
-    orange: Dict[str, List[Tuple[int, int, int]]]
-    red: Dict[str, List[Tuple[int, int, int]]]
-    cyan: Dict[str, List[Tuple[int, int, int]]]
-    gold: Dict[str, List[Tuple[int, int, int]]]
+    green: list[list[int]]
+    orange: list[list[int]]
+    red: list[list[int]]
+    cyan: list[list[int]]
+    gold: list[list[int]]
 
 
 @dataclass(slots=True)
@@ -26,7 +25,7 @@ class WindowSettings:
 @dataclass(slots=True)
 class Config:
     colors: ColorsOfShapes
-    shapes: List[str]
+    shapes: list[str]
     window: WindowSettings
     background_menu_path: str
     background_game_path: str
