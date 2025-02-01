@@ -1,13 +1,7 @@
 import pygame
 from dynaconf import settings
 from typing import Tuple, List, Dict
-from adaptix import Retort
 from schemas.config import Config
-import os
-
-retort = Retort()
-# Преобразование settings в объект Config
-config: Config = retort.load(settings.as_dict(), Config)
 
 
 class DrawImage:
@@ -90,14 +84,14 @@ class DrawImage:
 
 
 class ShapeImageGenerator:
-    def __init__(self, config: Config, block_size: int = 43, padding: int = 4, border_thickness: int = 1) -> None:
+    def __init__(self, block_size: int = 43, padding: int = 4, border_thickness: int = 1) -> None:
         self.__block_size = block_size
         self.__padding = padding
         self.__border_thickness = border_thickness
         self.COLORS: Dict[str, List[Tuple[int, int, int]]] = {
-            key: [tuple(color) for color in value] for key, value in config.colors.__dict__.items()
+            key: [tuple(color) for color in value] for key, value in settings.colors.items()
         }
-        self.input_strings: List[str] = config.shapes
+        self.input_strings: List[str] = list(settings.shapes)
         self.drawer = DrawImage()
 
     @property
