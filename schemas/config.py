@@ -19,7 +19,8 @@ class ColorsOfShapes:
 
 @dataclass(slots=True)
 class WindowSettings:
-    size: tuple[int, int]
+    size: list[int, int]
+    title: str
 
 
 @dataclass(slots=True)

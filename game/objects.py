@@ -3,6 +3,7 @@ from dynaconf import settings
 from typing import Tuple, List, Dict
 from adaptix import Retort
 from schemas.config import Config
+import os
 
 retort = Retort()
 # Преобразование settings в объект Config
