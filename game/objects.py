@@ -1,7 +1,5 @@
 import pygame
 from dynaconf import settings
-from typing import Tuple, List, Dict
-from schemas.config import Config
 
 
 class DrawImage:
@@ -11,10 +9,10 @@ class DrawImage:
             inner_rect: pygame.Rect,
             padding: int,
             block_size: int,
-            top_highlight: Tuple[int, int, int],
-            left_shadow: Tuple[int, int, int],
-            right_shadow: Tuple[int, int, int],
-            bottom_shadow: Tuple[int, int, int],
+            top_highlight: tuple[int, int, int],
+            left_shadow: tuple[int, int, int],
+            right_shadow: tuple[int, int, int],
+            bottom_shadow: tuple[int, int, int],
     ) -> None:
         """Рисует тени для 3D-блока."""
         pygame.draw.polygon(surface, top_highlight, [
@@ -42,8 +40,16 @@ class DrawImage:
             (inner_rect.x + block_size, inner_rect.y + block_size),
         ])
 
-    def draw_3d_block(self, surface: pygame.Surface, x: int, y: int, colors: List[Tuple[int, int, int]],
-                      block_size: int, padding: int, border_thickness: int) -> None:
+    def draw_3d_block(
+            self,
+            surface: pygame.Surface,
+            x: int,
+            y: int,
+            colors: tuple[tuple[int, int, int], ...],
+            block_size: int,
+            padding: int,
+            border_thickness: int
+    ) -> None:
         """Рисует 3D-блок с тенями."""
         main_color, top_highlight, left_shadow, right_shadow, bottom_shadow = colors
         outer_rect = pygame.Rect(x, y, block_size, block_size)
@@ -53,8 +59,14 @@ class DrawImage:
         self._draw_shadows(surface, inner_rect, padding, block_size, top_highlight, left_shadow, right_shadow,
                            bottom_shadow)
 
-    def draw_shape(self, shape: List[Tuple[int, int]], colors: List[Tuple[int, int, int]], block_size: int,
-                   padding: int, border_thickness: int) -> pygame.Surface:
+    def draw_shape(
+            self,
+            shape: list[tuple[int, int]],
+            colors: tuple[tuple[int, int, int], ...],
+            block_size: int,
+            padding: int,
+            border_thickness: int
+    ) -> pygame.Surface:
         """Рисует фигуру с использованием блоков."""
         width, height, min_x, min_y = self.calculate_screen_size(shape, block_size)
         surface = pygame.Surface((width, height), pygame.SRCALPHA)
@@ -72,7 +84,10 @@ class DrawImage:
         return surface
 
     @staticmethod
-    def calculate_screen_size(shape: List[Tuple[int, int]], block_size: int) -> Tuple[int, int, int, int]:
+    def calculate_screen_size(
+            shape: list[tuple[int, int]],
+            block_size: int
+    ) -> tuple[int, int, int, int]:
         """Вычисляет размер экрана для фигуры."""
         min_x = min(x for x, y in shape)
         min_y = min(y for x, y in shape)
@@ -84,35 +99,49 @@ class DrawImage:
 
 
 class ShapeImageGenerator:
-    def __init__(self, block_size: int = 43, padding: int = 4, border_thickness: int = 1) -> None:
+    def __init__(
+            self,
+            block_size: int = 43,
+            padding: int = 4,
+            border_thickness: int = 1
+    ) -> None:
         self.__block_size = block_size
         self.__padding = padding
         self.__border_thickness = border_thickness
-        self.COLORS: Dict[str, List[Tuple[int, int, int]]] = {
+        # Используем settings.colors напрямую
+        self.COLORS: dict[str, list[tuple[int, int, int]]] = {
             key: [tuple(color) for color in value] for key, value in settings.colors.items()
         }
-        self.input_strings: List[str] = list(settings.shapes)
+        self.input_strings: list[str] = list(settings.shapes)
         self.drawer = DrawImage()
 
     @property
-    def images(self) -> Dict[str, List[Tuple[int, pygame.Surface]]]:
+    def images(self) -> dict[str, list[pygame.Surface]]:
         """Генерирует изображения фигур и возвращает их."""
-        images: Dict[str, List[Tuple[int, pygame.Surface]]] = {}
+        images: dict[str, list[pygame.Surface]] = {}
         for color_name, colors in self.COLORS.items():
-            shapes = []
+            surfaces: list[pygame.Surface] = []
+            shapes_with_surfaces: list[tuple[int, pygame.Surface]] = []
+
             for input_string in self.input_strings:
                 shape = self.parse_input(input_string)
                 surface = self.drawer.draw_shape(shape, colors, self.__block_size, self.__padding,
                                                  self.__border_thickness)
-                shapes.append((len(shape), surface))
-            shapes.sort(key=lambda x: x[0])
-            images[color_name] = shapes
+                shapes_with_surfaces.append((len(shape), surface))
+
+            # Сортируем по возрастанию количества блоков
+            shapes_with_surfaces.sort(key=lambda x: x[0])
+
+            # Извлекаем только поверхности
+            surfaces = [surface for _, surface in shapes_with_surfaces]
+            images[color_name] = surfaces
+
         return images
 
     @staticmethod
-    def parse_input(input_string: str) -> List[Tuple[int, int]]:
+    def parse_input(input_string: str) -> list[tuple[int, int]]:
         """Парсит входную строку и возвращает координаты фигуры."""
-        shape = []
+        shape: list[tuple[int, int]] = []
         for y, row in enumerate(input_string.split("\n")):
             for x, char in enumerate(row):
                 if char == 'o':
