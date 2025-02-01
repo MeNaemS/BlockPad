@@ -1,6 +1,7 @@
 {
     "window": {
-        "size": [1920, 1080]
+        "size": [1920, 1080],
+        "title": "BlockPad"
     },
     "background_menu_path": "./assets/images/background_1.png",
     "background_game_path": "./assets/images/background_2.png"
