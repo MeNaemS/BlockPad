@@ -5,14 +5,12 @@ from adaptix import Retort
 from schemas.config import Config
 import os
 
-# Инициализация Adaptix
 retort = Retort()
-config: Config = retort.load(settings, Config)
+# Преобразование settings в объект Config
+config: Config = retort.load(settings.as_dict(), Config)
 
 
 class DrawImage:
-    surface: pygame.Surface
-
     @staticmethod
     def _draw_shadows(
             surface: pygame.Surface,
@@ -31,21 +29,18 @@ class DrawImage:
             (inner_rect.x + inner_rect.width - padding, inner_rect.y + padding),
             (inner_rect.x + padding, inner_rect.y + padding),
         ])
-
         pygame.draw.polygon(surface, left_shadow, [
             (inner_rect.x, inner_rect.y),
             (inner_rect.x + padding, inner_rect.y + padding),
             (inner_rect.x + padding, inner_rect.y + inner_rect.height - padding),
             (inner_rect.x, inner_rect.y + inner_rect.height),
         ])
-
         pygame.draw.polygon(surface, right_shadow, [
             (inner_rect.x + inner_rect.width, inner_rect.y),
             (inner_rect.x + inner_rect.width - padding, inner_rect.y + padding),
             (inner_rect.x + inner_rect.width - padding, inner_rect.y + inner_rect.height - padding),
             (inner_rect.x + block_size, inner_rect.y + block_size),
         ])
-
         pygame.draw.polygon(surface, bottom_shadow, [
             (inner_rect.x, inner_rect.y + inner_rect.height),
             (inner_rect.x + padding, inner_rect.y + inner_rect.height - padding),
@@ -57,13 +52,10 @@ class DrawImage:
                       block_size: int, padding: int, border_thickness: int) -> None:
         """Рисует 3D-блок с тенями."""
         main_color, top_highlight, left_shadow, right_shadow, bottom_shadow = colors
-
         outer_rect = pygame.Rect(x, y, block_size, block_size)
         pygame.draw.rect(surface, (255, 255, 255), outer_rect)
-
         inner_rect = outer_rect.inflate(-border_thickness, -border_thickness)
         pygame.draw.rect(surface, main_color, inner_rect)
-
         self._draw_shadows(surface, inner_rect, padding, block_size, top_highlight, left_shadow, right_shadow,
                            bottom_shadow)
 
@@ -73,7 +65,6 @@ class DrawImage:
         width, height, min_x, min_y = self.calculate_screen_size(shape, block_size)
         surface = pygame.Surface((width, height), pygame.SRCALPHA)
         surface.fill((0, 0, 0, 0))
-
         for (x, y) in shape:
             self.draw_3d_block(
                 surface,
@@ -99,13 +90,14 @@ class DrawImage:
 
 
 class ShapeImageGenerator:
-    def __init__(self, block_size: int = 43, padding: int = 4, border_thickness: int = 1) -> None:
+    def __init__(self, config: Config, block_size: int = 43, padding: int = 4, border_thickness: int = 1) -> None:
         self.__block_size = block_size
         self.__padding = padding
         self.__border_thickness = border_thickness
-        self.COLORS: Dict[str, List[Tuple[int, int, int]]] = {key: [tuple(color) for color in value] for key, value in
-                                                              settings.colors.colors.items()}
-        self.input_strings: List[str] = list(settings.shapes)
+        self.COLORS: Dict[str, List[Tuple[int, int, int]]] = {
+            key: [tuple(color) for color in value] for key, value in config.colors.__dict__.items()
+        }
+        self.input_strings: List[str] = config.shapes
         self.drawer = DrawImage()
 
     @property
