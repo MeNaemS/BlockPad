@@ -1,8 +1,13 @@
 {
     "window": {
         "size": [1920, 1080],
+        "minimal_size": [720, 480],
         "title": "BlockPad"
     },
+    "game": {
+        "FPS": 60
+    },
     "background_menu_path": "./assets/images/background_1.png",
-    "background_game_path": "./assets/images/background_2.png"
+    "background_game_path": "./assets/images/background_2.png",
+    "icon": "./assets/images/icon.bmp"
 }
