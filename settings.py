@@ -8,4 +8,3 @@ settings: Config = Dynaconf(
         f'{dotenv.config_path}/{dotenv.shapes_path}'
     ]
 )
-
